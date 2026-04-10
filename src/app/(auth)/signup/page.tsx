@@ -71,7 +71,8 @@ export default function SignupPage() {
       toast.success("Account created!");
       router.push("/dashboard");
     } catch (error: any) {
-      console.error(error);
+      console.error("DEBUG signup error:", error);
+      console.error("DEBUG full error obj:", JSON.stringify(error, null, 2));
       toast.error(error.message);
     } finally {
       setLoading(false);

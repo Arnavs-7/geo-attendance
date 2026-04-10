@@ -42,7 +42,8 @@ export default function LoginPage() {
       toast.success("Logged in successfully!");
       router.push("/");
     } catch (error: any) {
-      console.error(error);
+      console.error("DEBUG login error:", error);
+      console.error("DEBUG full error obj:", JSON.stringify(error, null, 2));
       let message = "Failed to login. Please check your credentials.";
       if (error.code === "auth/user-not-found") message = "User not found.";
       if (error.code === "auth/wrong-password") message = "Wrong password.";

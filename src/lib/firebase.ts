@@ -11,6 +11,17 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
 };
 
+if (typeof window !== 'undefined') {
+  console.log("Firebase Env Debug:", {
+    apiKeyLen: process.env.NEXT_PUBLIC_FIREBASE_API_KEY?.length || 0,
+    authDomainLen: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN?.length || 0,
+    projectIdLen: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.length || 0,
+    storageBucketLen: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET?.length || 0,
+    messagingSenderIdLen: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID?.length || 0,
+    appIdLen: process.env.NEXT_PUBLIC_FIREBASE_APP_ID?.length || 0,
+  });
+}
+
 // Initialize Firebase — safe for both client and server (build-time prerender)
 let app: FirebaseApp;
 let auth: Auth;
