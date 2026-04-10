@@ -32,9 +32,20 @@ try {
   auth = getAuth(app);
   db = getFirestore(app);
 } catch (error) {
+  const errMsg = (error as Error).message;
   // During build-time prerender, Firebase may fail due to missing env vars.
-  // This is expected — the app will re-initialize on the client at runtime.
-  console.warn("Firebase initialization failed (expected during build):", (error as Error).message);
+  console.warn("Firebase initialization failed:", errMsg);
+
+  // AGGRESSIVE DEBUG: Force a popup in the browser so the user can't miss it
+  if (typeof window !== 'undefined') {
+    window.alert(
+      "🔴 FIREBASE INIT FAILED!\n\n" +
+      "Error: " + errMsg + "\n\n" +
+      "API Key length: " + (process.env.NEXT_PUBLIC_FIREBASE_API_KEY?.length || 0) + "\n" +
+      "Project ID length: " + (process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.length || 0)
+    );
+  }
+
   app = {} as FirebaseApp;
   auth = {} as Auth;
   db = {} as Firestore;

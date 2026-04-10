@@ -120,6 +120,18 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
+              {/* ===== TEMPORARY VISUAL DEBUGGER — REMOVE BEFORE FINAL DEPLOY ===== */}
+              <div className="rounded border border-dashed border-orange-400 bg-orange-50 p-3 text-xs font-mono space-y-1">
+                <p className="font-bold text-orange-700">🔧 Firebase Env Debug (TEMP)</p>
+                <p>API Key: {process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? '✅ EXISTS' : '❌ MISSING'} — len: {process.env.NEXT_PUBLIC_FIREBASE_API_KEY?.length || 0}</p>
+                <p>Auth Domain: {process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ? '✅ EXISTS' : '❌ MISSING'} — len: {process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN?.length || 0}</p>
+                <p>Project ID: {process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ? '✅ EXISTS' : '❌ MISSING'} — len: {process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.length || 0}</p>
+                <p>Storage Bucket: {process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ? '✅ EXISTS' : '❌ MISSING'} — len: {process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET?.length || 0}</p>
+                <p>Messaging ID: {process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ? '✅ EXISTS' : '❌ MISSING'} — len: {process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID?.length || 0}</p>
+                <p>App ID: {process.env.NEXT_PUBLIC_FIREBASE_APP_ID ? '✅ EXISTS' : '❌ MISSING'} — len: {process.env.NEXT_PUBLIC_FIREBASE_APP_ID?.length || 0}</p>
+              </div>
+              {/* ===== END DEBUGGER ===== */}
+
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Login
