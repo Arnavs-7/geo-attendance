@@ -6,7 +6,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -98,51 +98,51 @@ export default function AdminSettings() {
     );
   }
 
+  const inputClasses = "h-11 bg-secondary/50 border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all duration-200 rounded-xl text-sm";
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Settings</h1>
-      </div>
+      <h1 className="text-3xl font-bold tracking-tight opacity-0 animate-fade-in">Settings</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <Card>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 opacity-0 animate-fade-in-delay">
+        <Card className="glass-card rounded-2xl">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <MapPin className="h-5 w-5 text-primary" />
               Office Configuration
             </CardTitle>
             <CardDescription>Define the office location and geofence parameters.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="officeName">Office Name</Label>
-              <Input id="officeName" {...register("officeName")} />
-              {errors.officeName && <p className="text-xs text-red-500">{errors.officeName.message}</p>}
+              <Label htmlFor="officeName" className="text-xs font-medium text-foreground/70">Office Name</Label>
+              <Input id="officeName" {...register("officeName")} className={inputClasses} />
+              {errors.officeName && <p className="text-xs text-red-400">{errors.officeName.message}</p>}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="latitude">Latitude</Label>
-                <Input id="latitude" type="number" step="any" {...register("latitude")} />
-                {errors.latitude && <p className="text-xs text-red-500">{errors.latitude.message}</p>}
+                <Label htmlFor="latitude" className="text-xs font-medium text-foreground/70">Latitude</Label>
+                <Input id="latitude" type="number" step="any" {...register("latitude")} className={inputClasses} />
+                {errors.latitude && <p className="text-xs text-red-400">{errors.latitude.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="longitude">Longitude</Label>
-                <Input id="longitude" type="number" step="any" {...register("longitude")} />
-                {errors.longitude && <p className="text-xs text-red-500">{errors.longitude.message}</p>}
+                <Label htmlFor="longitude" className="text-xs font-medium text-foreground/70">Longitude</Label>
+                <Input id="longitude" type="number" step="any" {...register("longitude")} className={inputClasses} />
+                {errors.longitude && <p className="text-xs text-red-400">{errors.longitude.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="radiusMeters">Radius (Meters)</Label>
-                <Input id="radiusMeters" type="number" {...register("radiusMeters")} />
-                {errors.radiusMeters && <p className="text-xs text-red-500">{errors.radiusMeters.message}</p>}
+                <Label htmlFor="radiusMeters" className="text-xs font-medium text-foreground/70">Radius (Meters)</Label>
+                <Input id="radiusMeters" type="number" {...register("radiusMeters")} className={inputClasses} />
+                {errors.radiusMeters && <p className="text-xs text-red-400">{errors.radiusMeters.message}</p>}
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="glass-card rounded-2xl">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Clock className="h-5 w-5 text-primary" />
               Attendance Rules
             </CardTitle>
             <CardDescription>Set the thresholds for late marking and check-outs.</CardDescription>
@@ -150,15 +150,15 @@ export default function AdminSettings() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="lateThresholdTime">Late Threshold (HH:MM)</Label>
-                <Input id="lateThresholdTime" type="time" {...register("lateThresholdTime")} />
+                <Label htmlFor="lateThresholdTime" className="text-xs font-medium text-foreground/70">Late Threshold (HH:MM)</Label>
+                <Input id="lateThresholdTime" type="time" {...register("lateThresholdTime")} className={inputClasses} />
                 <p className="text-xs text-muted-foreground">Employees marking attendance after this time will be flagged as &apos;Late&apos;.</p>
-                {errors.lateThresholdTime && <p className="text-xs text-red-500">{errors.lateThresholdTime.message}</p>}
+                {errors.lateThresholdTime && <p className="text-xs text-red-400">{errors.lateThresholdTime.message}</p>}
               </div>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between glass-card-light rounded-xl p-4">
                   <div className="space-y-0.5">
-                    <Label htmlFor="autoCheckoutEnabled">Enable Auto Check-out</Label>
+                    <Label htmlFor="autoCheckoutEnabled" className="text-sm font-medium">Enable Auto Check-out</Label>
                     <p className="text-xs text-muted-foreground">Automatically check-out employees at a set time.</p>
                   </div>
                   <Switch
@@ -169,28 +169,28 @@ export default function AdminSettings() {
                 </div>
                 {autoCheckoutEnabled && (
                   <div className="space-y-2">
-                    <Label htmlFor="autoCheckoutTime">Auto Check-out Time (HH:MM)</Label>
-                    <Input id="autoCheckoutTime" type="time" {...register("autoCheckoutTime")} />
-                    {errors.autoCheckoutTime && <p className="text-xs text-red-500">{errors.autoCheckoutTime.message}</p>}
+                    <Label htmlFor="autoCheckoutTime" className="text-xs font-medium text-foreground/70">Auto Check-out Time (HH:MM)</Label>
+                    <Input id="autoCheckoutTime" type="time" {...register("autoCheckoutTime")} className={inputClasses} />
+                    {errors.autoCheckoutTime && <p className="text-xs text-red-400">{errors.autoCheckoutTime.message}</p>}
                   </div>
                 )}
               </div>
             </div>
           </CardContent>
-          <CardFooter className="border-t pt-4">
-             <Button type="submit" className="ml-auto" disabled={saving}>
-               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-               Save Settings
-             </Button>
-          </CardFooter>
+          <div className="px-6 pb-6 flex justify-end">
+            <Button type="submit" disabled={saving} className="gradient-primary text-white rounded-xl h-11 px-8 hover:shadow-blue-500/30 hover:shadow-lg transition-all">
+              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              Save Settings
+            </Button>
+          </div>
         </Card>
       </form>
 
       {/* Geofence Tester */}
-      <Card>
+      <Card className="glass-card rounded-2xl opacity-0 animate-fade-in-delay-2">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <ShieldCheck className="h-5 w-5 text-primary" />
             Geofence Tester
           </CardTitle>
           <CardDescription>Verify if specific coordinates fall within your defined office boundary.</CardDescription>
@@ -198,34 +198,36 @@ export default function AdminSettings() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Test Latitude</Label>
+              <Label className="text-xs font-medium text-foreground/70">Test Latitude</Label>
               <Input
                 placeholder="e.g. 12.9716"
                 value={testCoords.lat}
                 onChange={(e) => setTestCoords({ ...testCoords, lat: e.target.value })}
+                className={inputClasses}
               />
             </div>
             <div className="space-y-2">
-              <Label>Test Longitude</Label>
+              <Label className="text-xs font-medium text-foreground/70">Test Longitude</Label>
               <Input
                 placeholder="e.g. 77.5946"
                 value={testCoords.lng}
                 onChange={(e) => setTestCoords({ ...testCoords, lng: e.target.value })}
+                className={inputClasses}
               />
             </div>
           </div>
-          <Button variant="outline" onClick={handleTestGeofence} className="w-full">
+          <Button variant="outline" onClick={handleTestGeofence} className="w-full rounded-xl h-11 border-white/[0.1] hover:bg-white/[0.04] transition-all">
             Test Coordinates
           </Button>
           {testResult && (
             <div className={cn(
-              "p-4 rounded-lg flex flex-col items-center justify-center gap-2 text-center",
-              testResult.inside ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
+              "p-5 rounded-xl flex flex-col items-center justify-center gap-2 text-center border",
+              testResult.inside ? "bg-emerald-500/10 border-emerald-500/20" : "bg-red-500/10 border-red-500/20"
             )}>
-              <p className={cn("text-lg font-bold", testResult.inside ? "text-green-600" : "text-red-600")}>
+              <p className={cn("text-lg font-bold", testResult.inside ? "text-emerald-400" : "text-red-400")}>
                 {testResult.inside ? "INSIDE BOUNDARY" : "OUTSIDE BOUNDARY"}
               </p>
-              <p className="text-sm">Distance: {Math.round(testResult.distance)} meters from office center</p>
+              <p className="text-sm text-muted-foreground">Distance: {Math.round(testResult.distance)} meters from office center</p>
             </div>
           )}
         </CardContent>
@@ -233,4 +235,3 @@ export default function AdminSettings() {
     </div>
   );
 }
-

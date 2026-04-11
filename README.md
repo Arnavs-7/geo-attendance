@@ -56,10 +56,7 @@ The system uses the **Haversine formula** to calculate the distance between the 
 
 ## Admin Setup
 
-To set up an admin user:
-1. Sign up as a regular employee.
-2. Manually change the `role` field in the `users` collection to `admin` in the Firebase Console.
-3. Refresh the app to see the Admin Dashboard.
+> ⚠️ **Security Note**: Never promote users to admin via client-side code. The only safe method is directly through the Firebase Console by a project owner, or via a secured server-side Cloud Function using the Firebase Admin SDK with a secret token. Granting admin via any client-accessible path is a critical security vulnerability.
 
 ## Known Limitations
 

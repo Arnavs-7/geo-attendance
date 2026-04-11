@@ -28,12 +28,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let unsubProfile: (() => void) | null = null;
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      // Clean up previous profile listener if it exists
+      if (unsubProfile) {
+        unsubProfile();
+        unsubProfile = null;
+      }
+
       setUser(user);
       if (user) {
-        // Use onSnapshot for real-time profile updates (like role changes)
         const userDocRef = doc(db, "users", user.uid);
-        const unsubProfile = onSnapshot(userDocRef, (doc) => {
+        unsubProfile = onSnapshot(userDocRef, (doc) => {
           if (doc.exists()) {
             setUserProfile(doc.data() as UserProfile);
           } else {
@@ -41,14 +48,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
           setLoading(false);
         });
-        return () => unsubProfile();
       } else {
         setUserProfile(null);
         setLoading(false);
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (unsubProfile) unsubProfile();
+    };
   }, []);
 
   const value = {

@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { auth, db } from "@/lib/firebase";
-import { updatePassword, updateEmail } from "firebase/auth";
+import { updatePassword } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "react-hot-toast";
-import { Loader2, User, Mail, Shield, Building, Key } from "lucide-react";
+import { Loader2, User, Mail, Shield, Building, Key, Save } from "lucide-react";
 import Navbar from "@/components/shared/Navbar";
 
 export default function ProfilePage() {
@@ -74,101 +74,105 @@ export default function ProfilePage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50/50">
-      <Navbar />
-      <main className="container py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-8">My Profile</h1>
+  const inputClasses = "h-11 bg-secondary/50 border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all duration-200 rounded-xl text-sm";
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  return (
+    <div className="min-h-screen">
+      <Navbar />
+      <main className="container py-12 max-w-4xl">
+        <div className="opacity-0 animate-fade-in">
+          <h1 className="text-3xl font-bold tracking-tight">Account Settings</h1>
+          <p className="text-muted-foreground mt-1">Manage your professional profile and security.</p>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Left Column: Summary */}
-          <Card className="md:col-span-1 h-fit">
-            <CardHeader className="text-center">
-              <div className="mx-auto h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+          <Card className="md:col-span-1 h-fit glass-card rounded-2xl opacity-0 animate-fade-in-delay">
+            <CardContent className="pt-8 pb-6 text-center">
+              <div className="mx-auto h-24 w-24 rounded-full bg-gradient-to-br from-primary/20 to-violet-500/20 flex items-center justify-center mb-4 border border-primary/20">
                 <User className="h-12 w-12 text-primary" />
               </div>
-              <CardTitle>{userProfile?.name}</CardTitle>
-              <CardDescription className="uppercase tracking-wider font-bold text-xs">{userProfile?.role}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3 text-sm">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span>{userProfile?.email}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Shield className="h-4 w-4 text-muted-foreground" />
-                <span>ID: {userProfile?.employeeId}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Building className="h-4 w-4 text-muted-foreground" />
-                <span>{userProfile?.department}</span>
+              <h3 className="text-xl font-bold">{userProfile?.name}</h3>
+              <p className="text-xs uppercase tracking-wider font-bold text-primary mt-1">{userProfile?.role}</p>
+              <div className="mt-6 space-y-3 text-left px-2">
+                <div className="flex items-center gap-3 text-sm text-muted-foreground group">
+                  <Mail className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                  <span className="truncate">{userProfile?.email}</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground group">
+                  <Shield className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                  <span>ID: {userProfile?.employeeId}</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground group">
+                  <Building className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                  <span>{userProfile?.department}</span>
+                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Right Column: Forms */}
-          <div className="md:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Edit Profile</CardTitle>
-                <CardDescription>Update your personal information.</CardDescription>
-              </CardHeader>
-              <form onSubmit={handleUpdateProfile}>
-                <CardContent className="space-y-4">
+          <div className="md:col-span-2 space-y-6 opacity-0 animate-fade-in-delay-2">
+            <Card className="glass-card rounded-2xl border-white/[0.06]">
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-semibold mb-1">Profile Information</h3>
+                <p className="text-sm text-muted-foreground mb-6">Update your personal and department details.</p>
+                <form onSubmit={handleUpdateProfile} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" name="name" defaultValue={userProfile?.name} required />
+                    <Label htmlFor="name" className="text-xs font-medium text-foreground/70">Full Name</Label>
+                    <Input id="name" name="name" defaultValue={userProfile?.name} required className={inputClasses} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="department">Department</Label>
-                    <Input id="department" name="department" defaultValue={userProfile?.department} required />
+                    <Label htmlFor="department" className="text-xs font-medium text-foreground/70">Department</Label>
+                    <Input id="department" name="department" defaultValue={userProfile?.department} required className={inputClasses} />
                   </div>
-                </CardContent>
-                <CardFooter className="border-t pt-4">
-                  <Button type="submit" disabled={updating}>
+                  <Button type="submit" disabled={updating} className="w-full sm:w-auto gradient-primary text-white rounded-xl h-11 px-8 hover:shadow-blue-500/30 hover:shadow-lg transition-all mt-2">
                     {updating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Save className="mr-2 h-4 w-4" />
                     Save Changes
                   </Button>
-                </CardFooter>
-              </form>
+                </form>
+              </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Security</CardTitle>
-                <CardDescription>Change your account password.</CardDescription>
-              </CardHeader>
-              <form onSubmit={handleUpdatePassword}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
-                    <Input 
-                      id="newPassword" 
-                      type="password" 
-                      value={passwords.new}
-                      onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
-                      required 
-                    />
+            <Card className="glass-card rounded-2xl border-white/[0.06]">
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-semibold mb-1">Security & Access</h3>
+                <p className="text-sm text-muted-foreground mb-6">Change your account password to stay secure.</p>
+                <form onSubmit={handleUpdatePassword} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword" className="text-xs font-medium text-foreground/70">New Password</Label>
+                      <Input 
+                        id="newPassword" 
+                        type="password" 
+                        value={passwords.new}
+                        onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
+                        required 
+                        className={inputClasses}
+                        placeholder="••••••••"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword" className="text-xs font-medium text-foreground/70">Confirm Password</Label>
+                      <Input 
+                        id="confirmPassword" 
+                        type="password" 
+                        value={passwords.confirm}
+                        onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+                        required 
+                        className={inputClasses}
+                        placeholder="••••••••"
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                    <Input 
-                      id="confirmPassword" 
-                      type="password" 
-                      value={passwords.confirm}
-                      onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                      required 
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter className="border-t pt-4">
-                  <Button type="submit" variant="outline" disabled={passUpdating}>
+                  <Button type="submit" variant="outline" disabled={passUpdating} className="w-full sm:w-auto rounded-xl h-11 px-8 border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] transition-all mt-2">
                     {passUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     <Key className="mr-2 h-4 w-4" />
                     Update Password
                   </Button>
-                </CardFooter>
-              </form>
+                </form>
+              </CardContent>
             </Card>
           </div>
         </div>

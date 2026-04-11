@@ -27,7 +27,10 @@ export default function AdminLayout({
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground animate-pulse">Loading admin...</p>
+        </div>
       </div>
     );
   }
@@ -35,9 +38,9 @@ export default function AdminLayout({
   if (!user || !isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen">
       <Navbar />
-      <main className="container py-6">{children}</main>
+      <main className="container py-8">{children}</main>
     </div>
   );
 }

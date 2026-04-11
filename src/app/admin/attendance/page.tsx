@@ -40,6 +40,8 @@ export default function AdminAttendance() {
     search: "",
   });
 
+  const inputClasses = "h-11 bg-secondary/50 border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all duration-200 rounded-xl text-sm";
+
   const fetchAttendance = useCallback(async (loadMore = false) => {
     setLoading(true);
     try {
@@ -141,15 +143,15 @@ export default function AdminAttendance() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold">Attendance Records</h1>
-        <Button onClick={handleExportCSV} disabled={exporting}>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 opacity-0 animate-fade-in">
+        <h1 className="text-3xl font-bold tracking-tight">Attendance Records</h1>
+        <Button onClick={handleExportCSV} disabled={exporting} className="gradient-primary text-white rounded-xl hover:shadow-blue-500/30 hover:shadow-lg transition-all">
           {exporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
           Export CSV
         </Button>
       </div>
 
-      <Card>
+      <Card className="glass-card rounded-2xl opacity-0 animate-fade-in-delay">
         <CardContent className="pt-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="space-y-2">
@@ -158,7 +160,7 @@ export default function AdminAttendance() {
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Name or ID..."
-                  className="pl-8"
+                  className="h-11 pl-8 bg-secondary/50 border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all duration-200 rounded-xl text-sm"
                   value={filters.search}
                   onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                   onKeyDown={(e) => e.key === 'Enter' && fetchAttendance()}
@@ -197,10 +199,10 @@ export default function AdminAttendance() {
             </div>
           </div>
 
-          <div className="rounded-md border overflow-hidden">
+          <div className="rounded-xl border border-white/[0.06] overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/50">
+                <TableRow className="border-white/[0.06] hover:bg-transparent">
                   <TableHead>Employee</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Check In</TableHead>
@@ -232,20 +234,22 @@ export default function AdminAttendance() {
                         {record.checkOutTime ? format(record.checkOutTime.toDate(), "hh:mm a") : "-"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={record.status === 'present' ? 'default' : 'secondary'}
-                               className={cn(record.status === 'present' ? "bg-green-500" : "bg-amber-500 text-white")}>
+                        <Badge className={cn(
+                          "text-xs font-semibold border-none rounded-full px-3",
+                          record.status === 'present' ? "bg-emerald-500/20 text-emerald-300" : "bg-amber-500/20 text-amber-300"
+                        )}>
                           {record.status}
                         </Badge>
                       </TableCell>
                       <TableCell>{Math.round(record.distanceFromOffice)}m</TableCell>
                       <TableCell>
                         {record.isSuspicious ? (
-                          <div className="flex items-center gap-1 text-orange-600" title={record.suspiciousReason || "Suspicious activity"}>
+                          <div className="flex items-center gap-1 text-orange-400" title={record.suspiciousReason || "Suspicious activity"}>
                             <AlertTriangle className="h-4 w-4" />
                             <span className="text-xs font-bold uppercase tracking-tight">Suspicious</span>
                           </div>
                         ) : (
-                          <span className="text-xs text-green-600 font-medium uppercase tracking-tight">Clean</span>
+                          <span className="text-xs text-emerald-400 font-medium uppercase tracking-tight">Clean</span>
                         )}
                       </TableCell>
                     </TableRow>
