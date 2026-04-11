@@ -36,7 +36,7 @@ service cloud.firestore {
       allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid &&
         request.resource.data.checkInTime == request.time &&
-        request.resource.data.date == request.time.date().value() &&
+        request.resource.data.date == (string(request.time.year()) + "-" + (request.time.month() < 10 ? "0" + string(request.time.month()) : string(request.time.month())) + "-" + (request.time.day() < 10 ? "0" + string(request.time.day()) : string(request.time.day()))) &&
         attendanceId == request.auth.uid + "_" + request.resource.data.date;
         
       // Employees can only update their own records (for checkout).
