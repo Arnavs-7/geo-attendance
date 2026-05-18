@@ -9,16 +9,17 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin, userProfile } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
-      router.push("/dashboard");
+    // Wait until the profile has resolved so admins land on the admin area.
+    if (!loading && user && userProfile) {
+      router.push(isAdmin ? "/admin" : "/dashboard");
     }
-  }, [user, loading, router]);
+  }, [user, loading, userProfile, isAdmin, router]);
 
-  if (loading) {
+  if (loading || (user && !userProfile)) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />

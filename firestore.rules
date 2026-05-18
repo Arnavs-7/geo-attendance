@@ -2,52 +2,107 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper functions
+
+    // ---------- Helper functions ----------
+
     function isAuthenticated() {
       return request.auth != null;
     }
-    
-    function isAdmin() {
-      let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid));
-      return isAuthenticated() && userDoc.data.role == 'admin';
+
+    // The signed-in user's own profile data (cached per request by Firestore).
+    function userData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
-    
+
+    function userExists() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && userExists() && userData().role == 'admin';
+    }
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Users Collection
+    // Treat a missing `active` field as active (lenient for accounts created
+    // before this field existed). Only an explicit `active == false` blocks.
+    function isActiveUser() {
+      return isAuthenticated() && userExists() && userData().active != false;
+    }
+
+    // ---------- Users Collection ----------
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
+      allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      allow update: if isOwner(userId) || isAdmin();
+
+      // A user may only create THEIR OWN profile, and may not self-assign a
+      // privileged role. Admin promotion is a Firebase Console action only.
+      allow create: if isOwner(userId)
+        && request.resource.data.uid == userId
+        && request.resource.data.role == 'employee';
+
+      // `role` is NEVER writable from a client (admin promotion is a Firebase
+      // Console action only — the Console bypasses these rules).
+      //  - An employee may edit ONLY their own name/department.
+      //  - An admin may edit other profiles (department, deactivate, fix data)
+      //    but still cannot change `role`.
+      allow update: if request.resource.data.role == resource.data.role
+        && (
+          isAdmin()
+          || (isOwner(userId)
+              && request.resource.data.diff(resource.data)
+                   .affectedKeys().hasOnly(['name', 'department']))
+        );
+
       allow delete: if isAdmin();
     }
 
-    // Attendance Collection
+    // ---------- Attendance Collection ----------
     match /attendance/{attendanceId} {
-      // Admins can read everything. Employees can only read their own.
-      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
-      
-      // Employees can create their own records.
-      // Enforce: server timestamps, document ID format {userId}_{date}, and current date.
-      allow create: if isAuthenticated() && 
-        request.resource.data.userId == request.auth.uid &&
-        request.resource.data.checkInTime == request.time &&
-        request.resource.data.date == (string(request.time.year()) + "-" + (request.time.month() < 10 ? "0" + string(request.time.month()) : string(request.time.month())) + "-" + (request.time.day() < 10 ? "0" + string(request.time.day()) : string(request.time.day()))) &&
-        attendanceId == request.auth.uid + "_" + request.resource.data.date;
-        
-      // Employees can only update their own records (for checkout).
-      // Enforce: server checkout timestamp.
-      allow update: if (isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid)) &&
-        (request.resource.data.checkOutTime == null || request.resource.data.checkOutTime == request.time);
-        
+      // Admins read everything. Employees read ONLY their own records — a
+      // query without a `userId == <self>` filter is rejected by Firestore.
+      allow read: if isAdmin()
+        || (isAuthenticated() && resource.data.userId == request.auth.uid);
+
+      // Check-in. Enforced:
+      //  - the record belongs to the caller
+      //  - document id is `{uid}_{date}` (one check-in per user per day)
+      //  - server timestamps (no client clock manipulation)
+      //  - the caller's account is active
+      //  - status is one of the allowed values
+      allow create: if isOwner(request.resource.data.userId)
+        && attendanceId == request.auth.uid + '_' + request.resource.data.date
+        && request.resource.data.date is string
+        && request.resource.data.date.size() == 10
+        && request.resource.data.checkInTime == request.time
+        && request.resource.data.lastActionAt == request.time
+        && request.resource.data.checkOutTime == null
+        && request.resource.data.status in ['present', 'late']
+        && request.resource.data.distanceFromOffice is number
+        && request.resource.data.gpsAccuracy is number
+        && isActiveUser();
+
+      // Check-out. An employee may ONLY add checkOutTime/checkOutLocation to
+      // their own still-open record — every other field is frozen. The
+      // `lastActionAt` timestamp gives a rate-limit anchor and, combined with
+      // the `checkOutTime == null` precondition, blocks rapid duplicate writes.
+      // Admins may update freely (e.g. manually close a forgotten check-out).
+      allow update: if isAdmin()
+        || (isOwner(resource.data.userId)
+            && resource.data.checkOutTime == null
+            && request.resource.data.checkOutTime == request.time
+            && request.resource.data.lastActionAt == request.time
+            && request.time > resource.data.lastActionAt
+            && request.resource.data.diff(resource.data)
+                 .affectedKeys()
+                 .hasOnly(['checkOutTime', 'checkOutLocation', 'lastActionAt']));
+
       allow delete: if isAdmin();
     }
 
-    // Office Config
+    // ---------- Office Config ----------
     match /officeConfig/{configId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();

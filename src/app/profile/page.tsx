@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { auth, db } from "@/lib/firebase";
 import { updatePassword } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
+import { sanitizeText } from "@/lib/sanitize";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,23 +16,33 @@ import { Loader2, User, Mail, Shield, Building, Key, Save } from "lucide-react";
 import Navbar from "@/components/shared/Navbar";
 
 export default function ProfilePage() {
-  const { userProfile, loading } = useAuth();
+  const { user, userProfile, loading } = useAuth();
+  const router = useRouter();
   const [updating, setUpdating] = useState(false);
   const [passUpdating, setPassUpdating] = useState(false);
   const [passwords, setPasswords] = useState({ new: "", confirm: "" });
 
+  useEffect(() => {
+    if (!loading && !user) router.push("/login");
+  }, [loading, user, router]);
+
   const handleUpdateProfile = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!userProfile) return;
-    setUpdating(true);
     const formData = new FormData(e.currentTarget);
-    const name = formData.get("name") as string;
-    const department = formData.get("department") as string;
+    const name = sanitizeText(String(formData.get("name") ?? ""), 80);
+    const department = sanitizeText(String(formData.get("department") ?? ""), 60);
 
+    if (!name || !department) {
+      toast.error("Name and department cannot be empty.");
+      return;
+    }
+
+    setUpdating(true);
     try {
       await updateDoc(doc(db, "users", userProfile.uid), { name, department });
       toast.success("Profile updated!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to update profile.");
     } finally {
       setUpdating(false);
@@ -55,9 +67,10 @@ export default function ProfilePage() {
         toast.success("Password updated successfully!");
         setPasswords({ new: "", confirm: "" });
       }
-    } catch (error: any) {
-      if (error.code === "auth/requires-recent-login") {
-        toast.error("Please re-login to change your password.");
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      if (code === "auth/requires-recent-login") {
+        toast.error("Please log out and back in, then change your password.");
       } else {
         toast.error("Failed to update password.");
       }
@@ -73,6 +86,8 @@ export default function ProfilePage() {
       </div>
     );
   }
+
+  if (!user) return null;
 
   const inputClasses = "h-11 bg-secondary/50 border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all duration-200 rounded-xl text-sm";
 

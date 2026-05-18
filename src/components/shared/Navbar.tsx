@@ -34,7 +34,7 @@ export default function Navbar() {
 
   const navItems = isAdmin
     ? [
-        { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+        { label: "Overview", href: "/admin", icon: LayoutDashboard },
         { label: "Employees", href: "/admin/employees", icon: Users },
         { label: "Attendance", href: "/admin/attendance", icon: ClipboardList },
         { label: "Reports", href: "/admin/reports", icon: PieChart },

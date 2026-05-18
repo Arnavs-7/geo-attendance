@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { toast } from "react-hot-toast";
 import { Loader2, MapPin, UserPlus } from "lucide-react";
 import Link from "next/link";
+import { sanitizeText, sanitizeEmail, sanitizeId } from "@/lib/sanitize";
 
 const signupSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -49,9 +50,20 @@ export default function SignupPage() {
   const onSubmit = async (data: SignupFormValues) => {
     setLoading(true);
     try {
+      const name = sanitizeText(data.name, 80);
+      const department = sanitizeText(data.department, 60);
+      const employeeId = sanitizeId(data.employeeId);
+      const email = sanitizeEmail(data.email);
+
+      if (!name || !department || !employeeId) {
+        toast.error("Please fill in all fields with valid characters.");
+        setLoading(false);
+        return;
+      }
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
-        data.email,
+        email,
         data.password
       );
 
@@ -59,19 +71,28 @@ export default function SignupPage() {
 
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
-        name: data.name,
-        email: data.email,
-        employeeId: data.employeeId,
-        department: data.department,
+        name,
+        email,
+        employeeId,
+        department,
         role: "employee",
+        active: true,
         createdAt: serverTimestamp(),
       });
 
       toast.success("Account created!");
       router.push("/dashboard");
-    } catch (error: any) {
-      console.error("DEBUG signup error:", error);
-      toast.error(error.message);
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      let message = "Failed to create account. Please try again.";
+      if (code === "auth/email-already-in-use")
+        message = "An account with this email already exists.";
+      if (code === "auth/invalid-email") message = "That email address is invalid.";
+      if (code === "auth/weak-password")
+        message = "Password is too weak — use at least 8 characters.";
+      if (code === "auth/network-request-failed")
+        message = "Network error. Check your connection.";
+      toast.error(message);
     } finally {
       setLoading(false);
     }

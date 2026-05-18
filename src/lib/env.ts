@@ -27,15 +27,11 @@ export const env = {
     appId: getRequiredEnv("NEXT_PUBLIC_FIREBASE_APP_ID"),
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
   },
+  // Fallback geofence defaults — used only if officeConfig/default is missing.
   office: {
     latitude: parseFloat(process.env.NEXT_PUBLIC_OFFICE_LAT || "12.9716"),
     longitude: parseFloat(process.env.NEXT_PUBLIC_OFFICE_LNG || "77.5946"),
     radiusMeters: parseInt(process.env.NEXT_PUBLIC_GEOFENCE_RADIUS_METERS || "100", 10),
-  },
-  admin: {
-    projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n"),
   },
   isProd: process.env.NEXT_PUBLIC_APP_ENV === "production",
 };

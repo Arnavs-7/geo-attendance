@@ -3,7 +3,7 @@ import { getAuth, Auth } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { env } from "@/lib/env";
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: env.firebase.apiKey,
   authDomain: env.firebase.authDomain,
   projectId: env.firebase.projectId,

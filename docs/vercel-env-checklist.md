@@ -26,12 +26,14 @@ This document outlines all environment variables required for the Geo-Attendance
 | `NEXT_PUBLIC_APP_ENV` | Yes | `production` \| `development` | All | Yes |
 
 ## Firebase Admin SDK (Server-Side)
-| Variable Name | Required | Format | Environments | Public? |
-|--------------|----------|--------|--------------|---------|
-| `FIREBASE_ADMIN_PROJECT_ID` | Yes | String | Production | No |
-| `FIREBASE_ADMIN_CLIENT_EMAIL` | Yes | Email | Production | No |
-| `FIREBASE_ADMIN_PRIVATE_KEY` | Yes | RSA Private Key String | Production | No |
+
+**Not used.** This app runs entirely on the Firebase Spark (free) plan with no
+Cloud Functions and no Firebase Admin SDK. There are no server-side
+service-account secrets to configure.
 
 ---
 > [!IMPORTANT]
-> **NEXT_PUBLIC_** variables are bundled into the client-side JavaScript. Ensure no sensitive secrets (like the Admin Private Key) are ever prefixed with `NEXT_PUBLIC_`.
+> **NEXT_PUBLIC_** variables are bundled into the client-side JavaScript. The
+> Firebase Web API key is public *by design* — access is controlled by
+> Firestore Security Rules, not by key secrecy. Never prefix a genuine secret
+> with `NEXT_PUBLIC_`. This project has no such secrets.

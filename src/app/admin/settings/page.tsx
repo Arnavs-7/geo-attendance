@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { sanitizeText } from "@/lib/sanitize";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -44,6 +45,15 @@ export default function AdminSettings() {
     formState: { errors },
   } = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
+    defaultValues: {
+      officeName: "",
+      latitude: 0,
+      longitude: 0,
+      radiusMeters: 100,
+      lateThresholdTime: "09:30",
+      autoCheckoutEnabled: false,
+      autoCheckoutTime: "18:00",
+    },
   });
 
   const autoCheckoutEnabled = watch("autoCheckoutEnabled");
@@ -62,9 +72,15 @@ export default function AdminSettings() {
   const onSubmit = async (data: SettingsFormValues) => {
     setSaving(true);
     try {
-      await updateDoc(doc(db, "officeConfig", "default"), { ...data });
+      // setDoc + merge creates officeConfig/default the first time and
+      // updates it thereafter.
+      await setDoc(
+        doc(db, "officeConfig", "default"),
+        { ...data, officeName: sanitizeText(data.officeName, 80) },
+        { merge: true }
+      );
       toast.success("Settings updated successfully!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to update settings.");
     } finally {
       setSaving(false);

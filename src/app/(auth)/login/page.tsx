@@ -41,12 +41,16 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, data.email, data.password);
       toast.success("Logged in successfully!");
       router.push("/");
-    } catch (error: any) {
-      console.error("DEBUG login error:", error);
-      let message = "Failed to login. Please check your credentials.";
-      if (error.code === "auth/user-not-found") message = "User not found.";
-      if (error.code === "auth/wrong-password") message = "Wrong password.";
-      if (error.code === "auth/too-many-requests") message = "Too many attempts. Try again later.";
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      let message = "Failed to log in. Please check your credentials.";
+      if (code === "auth/user-not-found" || code === "auth/invalid-credential")
+        message = "Incorrect email or password.";
+      if (code === "auth/wrong-password") message = "Incorrect email or password.";
+      if (code === "auth/too-many-requests")
+        message = "Too many attempts. Please try again later.";
+      if (code === "auth/network-request-failed")
+        message = "Network error. Check your connection.";
       toast.error(message);
     } finally {
       setLoading(false);
@@ -64,7 +68,7 @@ export default function LoginPage() {
     try {
       await sendPasswordResetEmail(auth, email);
       toast.success("Password reset email sent!");
-    } catch (error: any) {
+    } catch {
       toast.error("Failed to send reset email.");
     } finally {
       setResetLoading(false);
